@@ -11,11 +11,14 @@
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages li { padding: 5px 10px; }
       #messages li:nth-child(odd) { background: #eee; }
+      #nick { background: rgb(195, 202, 197)}
+      .tag {background: lightgreen}
     </style>
   </head>
   <body>
     <ul id="messages"></ul>
     <form action="">
+      <input type="text" id="nick" placeholder="nickname">
       <input id="m" autocomplete="off" /><button>Send</button>
     </form>
     <script src="/socket.io/socket.io.js"></script>
@@ -24,17 +27,20 @@
         $(function () {
             var socket = io();
             $('form').submit(function(){
-                socket.emit('chat message', $('#m').val());
+                var data = {nick: $('#nick').val(), msg: $('#m').val()};
+                socket.emit('chat message', data);
                 $('#m').val('');
                 return false;
             });
             socket.on('chat message', function(msg){
-                $('#messages').append($('<li>').text(msg));
+              // $('#messages').append($('<li>').text('nick: ' + msg.nick + ', msg: ' + msg.msg));
+              $('#messages').append($('<li>').html('<b class="tag">' + msg.nick + '</b>' + ' ' + msg.msg));
+              // $('#messages').append($('<li>').append($('<div id="nickname">').text(msg.nick).append($('<div id="mess">').text(msg.msg))));
             });
             socket.on('new connection', function(msg){
                 console.log(msg);
             });
-            socket.on('new connection', function(msg){
+            socket.on('disconnection', function(msg){
                 console.log(msg);
             });
         });
